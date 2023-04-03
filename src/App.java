@@ -25,10 +25,22 @@ public class App {
         root = doc.body();
         break;
       } catch (IOException e) {
-        e.printStackTrace();
+        // e.printStackTrace();
       }
     }
     return root;
+  }
+
+  private static Element connectToURLOneTry(String url) {
+    Element root;
+    try {
+      Document doc = Jsoup.connect(url).get();
+      root = doc.body();
+      return root;
+    } catch (IOException e) {
+      // e.printStackTrace();
+    }
+    return null;
   }
 
   private static Element findElementWith(String text, Element element, String type) {
@@ -259,7 +271,7 @@ public class App {
       System.out.println(
           "7. For 'Award Category Name', for the countries that were nominated/won, how many times have they been nominated in the past (including this year)?");
       System.out
-          .println("8. Wild card – come up with an interesting question. List the question and find the answer to it.");
+          .println("8. List the most to least profitable ROIs of historical Best Picture Winners");
       try {
         choice = scanner.nextInt();
         if (choice < 1 || choice > 8) {
@@ -697,7 +709,7 @@ public class App {
             }
           }
         } catch (Exception e) {
-          System.out.println("Error: " + e);
+          // System.out.println("Error: " + e);
         }
       }
 
@@ -722,9 +734,307 @@ public class App {
           .println("The most common school is " + keys.get(0) + " with " + freqMap.get(keys.get(0)) + " nominations.");
 
     } else if (choice == 7) {
+      // Select Award
+      int award = 0;
+      while (true) {
+        System.out.println("Please type the number of the award you want to search for");
+        System.out.println("1. Best Picture");//
+        System.out.println("2. Best Cinematography");//
+        System.out.println("3. Best Production Design");//
+        System.out.println("4. Best Adapted Screenplay");//
+        System.out.println("5. Best Sound");//
+        System.out.println("6. Best Animated Short Film");//
+        System.out.println("7. Best Live Action Short Film");//
+        System.out.println("8. Best Film Editing");//
+        System.out.println("9. Best Original Score");//
+        System.out.println("10. Best Original Song");//
+        System.out.println("11. Best Visual Effects");//
+        System.out.println("12. Best Original Screenplay");//
+        System.out.println("13. Best Documentary Short Subject");//
+        System.out.println("14. Best Documentary Feature");//
+        System.out.println("15. Best International Feature Film");//
+        System.out.println("16. Best Costume Design");//
+        System.out.println("17. Best Makeup and Hairstyling");//
+        System.out.println("18. Best Animated Feature Film");//
+        try {
+          award = scanner.nextInt();
+          if (award < 1 || award > 18) {
+            System.out.println("Invalid choice!");
+          } else {
+            break;
+          }
+        } catch (Exception e) {
+          System.out.println("Invalid input!");
+          scanner.nextLine(); // clear the input buffer
+        }
+      }
+
+      List<String> awardURLs = Arrays.asList(
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Picture",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Cinematography",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Production_Design",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Adapted_Screenplay",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Sound",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Animated_Short_Film",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Live_Action_Short_Film",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Film_Editing",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Original_Score",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Original_Song",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Visual_Effects",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Original_Screenplay",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Documentary_Short_Subject",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Documentary_Feature",
+          "https://en.wikipedia.org/wiki/List_of_countries_by_number_of_Academy_Awards_for_Best_International_Feature_Film",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Costume_Design",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Makeup_and_Hairstyling",
+          "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Animated_Feature");
+      Element root = connectToURL(awardURLs.get(award - 1));
+      Map<String, Integer> freqMap = new HashMap<>();
+
+      if (award != 15) {
+        // Find Winners and Nominees H2
+        List<String> headerKeys = Arrays.asList("winners", "and", "nominees");
+        Element winNomHeader = findElementContaining(headerKeys, root, "h2");
+
+        // Get the tables under the winners and nominees header
+        List<Element> h2Content = geth2Content(winNomHeader);
+        Map<String, String> linkDict = new HashMap<>();
+        for (Element element : h2Content) {
+          if (findElementWith("", element, "table") != null) {
+            List<List<Element>> tableContent = getTableContent(element);
+            if (tableContent.get(0).get(0).text().contains("Year")) {
+              int tableWidth = tableContent.get(0).size();
+              for (int i = 1; i < tableContent.size(); i++) {
+                Element interestingText;
+                if (tableContent.get(i).size() == 1) {
+                  continue;
+                } else if (tableContent.get(i).size() == tableWidth) {
+                  interestingText = tableContent.get(i).get(1);
+                } else if (tableContent.get(i).size() == tableWidth - 1) {
+                  interestingText = tableContent.get(i).get(0);
+                } else {
+                  continue;
+                }
+                Elements interestingElements = interestingText.select("a");
+                for (Element linkElement : interestingElements) {
+                  String link = linkElement.attr("href");
+                  String text = linkElement.text();
+                  linkDict.putIfAbsent(text, link);
+                }
+              }
+            }
+          }
+        }
+
+        for (String key : linkDict.keySet()) {
+          try {
+            String link = URLDecoder.decode(linkDict.get(key), "UTF-8");
+            Element personPage = connectToURLOneTry("https://en.wikipedia.org" + link);
+            if (personPage == null) {
+              personPage = connectToURLOneTry("https://en.wikipedia.org" + linkDict.get(key));
+            }
+            if (personPage == null) {
+              // System.out.println("Could not connect to " + key);
+              continue;
+            }
+            // Get the first table element
+            Element infoTable = personPage.select("table").first();
+            List<List<Element>> infoTableContent = getTableContent(infoTable);
+            String country = null;
+            for (List<Element> infoTableElement : infoTableContent) {
+              if (infoTableElement.get(0).text().equals("Country")) {
+                if (infoTableElement.size() < 2) {
+                  System.out.println(infoTable.text());
+                  System.out.println();
+                  continue;
+                }
+                country = removeParentheses(removeBrackets(infoTableElement.get(1).text()));
+              }
+            }
+            if (country != null) {
+              if (freqMap.containsKey(country)) {
+                int count = freqMap.get(country);
+                freqMap.put(country, count + 1);
+              } else {
+                freqMap.put(country, 1);
+              }
+            }
+          } catch (Exception e) {
+            // System.out.println("Error: " + e);
+          }
+        }
+      } else {
+        // Find List H2
+        Element winNomHeader = findElementWith("Academy Awards for Best International Feature Film tally by country",
+            root, "h2");
+
+        // Get the tables under the winners and nominees header
+        List<Element> h2Content = geth2Content(winNomHeader);
+        for (Element element : h2Content) {
+          if (findElementWith("Submitting country", element, "table") != null) {
+            List<List<Element>> tableContent = getTableContent(element);
+            for (int i = 1; i < tableContent.size(); i++) {
+              String countryName = removeParentheses(removeBrackets(tableContent.get(i).get(0).text()));
+              int noms = Integer.parseInt(
+                  removeParentheses(removeBrackets(tableContent.get(i).get(2).text().replaceAll("[^0-9]", ""))));
+              freqMap.putIfAbsent(countryName, noms);
+            }
+            break;
+          }
+        }
+      }
+
+      // Sort the dictionary by values
+      List<Map.Entry<String, Integer>> entries = new ArrayList<>(freqMap.entrySet());
+      Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+        @Override
+        public int compare(Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) {
+          return e2.getValue().compareTo(e1.getValue());
+        }
+      });
+      // Create a list of keys in descending order
+      List<String> keys = new ArrayList<>();
+      for (Map.Entry<String, Integer> entry : entries) {
+        keys.add(entry.getKey());
+      }
+      // Print the list of keys
+      for (String key : keys) {
+        if (freqMap.get(key) > 0) {
+          System.out.println(key + ": " + freqMap.get(key));
+        }
+      }
 
     } else if (choice == 8) {
+      Element root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Picture");
 
+      // Find Winners and Nominees H2
+      List<String> headerKeys = Arrays.asList("winners", "and", "nominees");
+      Element winNomHeader = findElementContaining(headerKeys, root, "h2");
+
+      // Get the tables under the winners and nominees header
+      List<Element> h2Content = geth2Content(winNomHeader);
+      Map<String, String> linkDict = new HashMap<>();
+      for (Element element : h2Content) {
+        if (findElementWith("", element, "table") != null) {
+          List<List<Element>> tableContent = getTableContent(element);
+          if (tableContent.get(0).get(0).text().contains("Year")) {
+            int tableWidth = tableContent.get(0).size();
+            for (int i = 1; i < tableContent.size(); i++) {
+              Element interestingText;
+              if (tableContent.get(i).size() == 1) {
+                continue;
+              } else if (tableContent.get(i).size() == tableWidth) {
+                interestingText = tableContent.get(i).get(1);
+              } else if (tableContent.get(i).size() == tableWidth - 1) {
+                interestingText = tableContent.get(i).get(0);
+              } else {
+                continue;
+              }
+              Elements interestingElements = interestingText.select("a");
+              for (Element linkElement : interestingElements) {
+                String link = linkElement.attr("href");
+                String text = linkElement.text();
+                linkDict.putIfAbsent(text, link);
+              }
+            }
+          }
+        }
+      }
+      HashMap<String, Double> freqMap = new HashMap<>();
+      for (String key : linkDict.keySet()) {
+        try {
+          String link = URLDecoder.decode(linkDict.get(key), "UTF-8");
+          Element moviePage = connectToURLOneTry("https://en.wikipedia.org" + link);
+          if (moviePage == null) {
+            moviePage = connectToURLOneTry("https://en.wikipedia.org" + linkDict.get(key));
+          }
+          if (moviePage == null) {
+            // System.out.println("Could not connect to " + key);
+            continue;
+          }
+          // Get the first table element
+          Element infoTable = moviePage.select("table").first();
+          List<List<Element>> infoTableContent = getTableContent(infoTable);
+          double budget = -1;
+          double boxOffice = -1;
+          for (List<Element> infoTableElement : infoTableContent) {
+            if (infoTableElement.get(0).text().contains("Budget")) {
+              String raw_budget = infoTableElement.get(1).text();
+              String[] rawList = removeBrackets(raw_budget).replaceAll(",", "").replaceAll("[^0-9.]+", " ").trim()
+                  .split(" ");
+              budget = Double.parseDouble(rawList[0]);
+              if (raw_budget.contains("million") || raw_budget.contains("Million") || raw_budget
+                  .contains("m") || raw_budget.contains("M")) {
+                if (budget < 1000) {
+                  budget *= 1000000;
+                }
+              } else if (raw_budget.contains("billion") || raw_budget.contains("Billion") || raw_budget
+                  .contains("b") || raw_budget.contains("B")) {
+                if (budget < 1000) {
+                  budget *= 1000000000;
+                }
+              } else if (raw_budget.contains("thousand") || raw_budget.contains("Thousand") || raw_budget
+                  .contains("k") || raw_budget.contains("K")) {
+                if (budget < 1000) {
+                  budget *= 1000;
+                }
+              }
+            }
+            if (infoTableElement.get(0).text().contains("Box office")) {
+              String raw_boxOffice = infoTableElement.get(1).text();
+              String[] rawList = removeBrackets(raw_boxOffice).replaceAll(",", "").replaceAll("[^0-9.]+", " ").trim()
+                  .split(" ");
+              boxOffice = Double.parseDouble(rawList[0]);
+              if (raw_boxOffice.contains("million") || raw_boxOffice.contains("Million") || raw_boxOffice
+                  .contains("m") || raw_boxOffice.contains("M")) {
+                if (boxOffice < 1000) {
+                  boxOffice *= 1000000;
+                }
+              } else if (raw_boxOffice.contains("billion") || raw_boxOffice.contains("Billion") || raw_boxOffice
+                  .contains("b") || raw_boxOffice.contains("B")) {
+                if (boxOffice < 1000) {
+                  boxOffice *= 1000000000;
+                }
+              } else if (raw_boxOffice.contains("thousand") || raw_boxOffice.contains("Thousand") || raw_boxOffice
+                  .contains("k") || raw_boxOffice.contains("K")) {
+                if (boxOffice < 1000) {
+                  boxOffice *= 1000;
+                }
+              }
+            }
+          }
+          if (budget != -1 && boxOffice != -1) {
+            if (freqMap.containsKey(key)) {
+              freqMap.put(key, (boxOffice - budget) / budget);
+            } else {
+              freqMap.put(key, (boxOffice - budget) / budget);
+            }
+          }
+        } catch (Exception e) {
+          System.out.println("Error: " + e);
+        }
+      }
+
+      // Sort the dictionary by values
+      List<Map.Entry<String, Double>> entries = new ArrayList<>(freqMap.entrySet());
+      Collections.sort(entries, new Comparator<Map.Entry<String, Double>>() {
+        @Override
+        public int compare(Map.Entry<String, Double> e1, Map.Entry<String, Double> e2) {
+          return e2.getValue().compareTo(e1.getValue());
+        }
+      });
+      // Create a list of keys in descending order
+      List<String> keys = new ArrayList<>();
+      for (Map.Entry<String, Double> entry : entries) {
+        keys.add(entry.getKey());
+      }
+      // Print the list of keys
+      System.out.println("ROIs sorted:");
+      for (String key : keys) {
+        if (freqMap.get(key) > 0) {
+          System.out.println(key + ": " + Math.round(freqMap.get(key) * 100) + "%");
+        }
+      }
     }
   }
 }
