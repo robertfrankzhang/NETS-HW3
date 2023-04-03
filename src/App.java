@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collections;
+import java.util.Comparator;
+import java.net.URLDecoder;
 
 public class App {
 
@@ -100,6 +103,88 @@ public class App {
     }
 
     return elements;
+  }
+
+  private static String yearToOscarNum(int year) {
+    int oscarNum = year - 1927;
+    String suffix;
+    switch (oscarNum % 10) {
+      case 1:
+        suffix = "st";
+        break;
+      case 2:
+        suffix = "nd";
+        break;
+      case 3:
+        suffix = "rd";
+        break;
+      default:
+        suffix = "th";
+        break;
+    }
+    return oscarNum + suffix;
+  }
+
+  private static String removeBrackets(String s) {
+    return s.replaceAll("\\[[^\\]]*\\]|\\([^\\)]*\\)", "");
+  }
+
+  private static String removeParentheses(String s) {
+    return s.replaceAll("\\([^()]*\\)", "");
+  }
+
+  private static List<String> getAwardName() {
+    return Arrays.asList("Best Picture", "Best Director", "Best Actor", "Best Actress",
+        "Best Cinematography", "Best Production Design", "Best Adapted Screenplay", "Best Sound",
+        "Best Animated Short Film", "Best Live Action Short Film", "Best Film Editing", "Best Original Score",
+        "Best Original Song", "Best Supporting Actor", "Best Supporting Actress", "Best Visual Effects",
+        "Best Original Screenplay", "Best Documentary Short Subject", "Best Documentary Feature Film",
+        "Best International Feature Film", "Best Costume Design", "Best Makeup and Hairstyling",
+        "Best Animated Feature Film", "Best Assistant Director", "Best Director, Comedy Picture",
+        "Best Director, Dramatic Picture", "Best Dance Direction", "Best Original Musical or Comedy Score",
+        "Best Original Story", "Best Short Subject - 1 Reel", "Best Short Subject - 2 Reel",
+        "Best Short Subject - Color", "Best Short Subject - Comedy", "Best Short Subject - Novelty",
+        "Best Sound Editing", "Best Title Writing", "Best Unique and Artistic Production");
+  }
+
+  private static void printAwardNames() {
+    System.out.println("1. Best Picture");
+    System.out.println("2. Best Director");
+    System.out.println("3. Best Actor");
+    System.out.println("4. Best Actress");
+    System.out.println("5. Best Cinematography");
+    System.out.println("6. Best Production Design");
+    System.out.println("7. Best Adapted Screenplay");
+    System.out.println("8. Best Sound");
+    System.out.println("9. Best Animated Short Film");
+    System.out.println("10. Best Live Action Short Film");
+    System.out.println("11. Best Film Editing");
+    System.out.println("12. Best Original Score");
+    System.out.println("13. Best Original Song");
+    System.out.println("14. Best Supporting Actor");
+    System.out.println("15. Best Supporting Actress");
+    System.out.println("16. Best Visual Effects");
+    System.out.println("17. Best Original Screenplay");
+    System.out.println("18. Best Documentary Short Subject");
+    System.out.println("19. Best Documentary Feature Film");
+    System.out.println("20. Best International Feature Film");
+    System.out.println("21. Best Costume Design");
+    System.out.println("22. Best Makeup and Hairstyling");
+    System.out.println("23. Best Animated Feature Film");
+    System.out.println("24. Best Assistant Director");
+    System.out.println("25. Best Director, Comedy Picture");
+    System.out.println("26. Best Director, Dramatic Picture");
+    System.out.println("27. Best Dance Direction");
+    System.out.println("28. Best Original Musical or Comedy Score");
+    System.out.println("29. Best Original Story");
+    System.out.println("30. Best Short Subject - 1 Reel");
+    System.out.println("31. Best Short Subject - 2 Reel");
+    System.out.println("32. Best Short Subject - Color");
+    System.out.println("33. Best Short Subject - Comedy");
+    System.out.println("34. Best Short Subject - Novelty");
+    System.out.println("35. Best Sound Editing");
+    System.out.println("36. Best Title Writing");
+    System.out.println("37. Best Unique and Artistic Production");
   }
 
   private static List<String> getListContent(Element list) {
@@ -319,23 +404,7 @@ public class App {
         }
       }
 
-      int oscarNum = year - 1927;
-      String suffix;
-      switch (oscarNum % 10) {
-        case 1:
-          suffix = "st";
-          break;
-        case 2:
-          suffix = "nd";
-          break;
-        case 3:
-          suffix = "rd";
-          break;
-        default:
-          suffix = "th";
-          break;
-      }
-      Element root = connectToURL("https://en.wikipedia.org/wiki/" + oscarNum + suffix + "_Academy_Awards");
+      Element root = connectToURL("https://en.wikipedia.org/wiki/" + yearToOscarNum(year) + "_Academy_Awards");
 
       // Create an empty dict of {Film : Nomination Count}
       Map<String, Integer> nominationCounter = new HashMap<String, Integer>();
@@ -381,10 +450,276 @@ public class App {
       }
 
     } else if (choice == 4) {
+      // Select Year
+      int year = 0;
+      while (true) {
+        System.out.println(
+            "Please choose a year between 1928 and 2022 by typing a num between 1928 and 2022. This indicates the year in which the film was released.");
+        try {
+          year = scanner.nextInt();
+          if (year < 1929 || year > 2022) {
+            System.out.println("Invalid choice!");
+          } else {
+            break;
+          }
+        } catch (Exception e) {
+          System.out.println("Invalid input!");
+          scanner.nextLine(); // clear the input buffer
+        }
+      }
+
+      // Select Award
+      int award = 0;
+      while (true) {
+        System.out.println("Please type the number of the award you want to search for.");
+        printAwardNames();
+        try {
+          award = scanner.nextInt();
+          if (award < 1 || award > 37) {
+            System.out.println("Invalid choice!");
+          } else {
+            break;
+          }
+        } catch (Exception e) {
+          System.out.println("Invalid input!");
+          scanner.nextLine(); // clear the input buffer
+        }
+      }
+
+      List<String> awardNameList = getAwardName();
+      String awardName = awardNameList.get(award - 1);
+
+      Element root = connectToURL("https://en.wikipedia.org/wiki/" + yearToOscarNum(year) + "_Academy_Awards");
+
+      // Find Winners and Nominees H2
+      List<String> headerKeys = Arrays.asList("winners", "and", "nominees");
+      Element winNomHeader = findElementContaining(headerKeys, root, "h2");
+
+      // Find the first table under the winners and nominees header
+      List<Element> h2Content = geth2Content(winNomHeader);
+      List<Element> tableContent = null;
+      for (Element element : h2Content) {
+        if (findElementWith("", element, "table") != null) {
+          tableContent = flattenTableContent(element);
+          break;
+        }
+      }
+      if (tableContent == null) {
+        System.out.println("No table found!");
+        return;
+      }
+
+      // For each element inside the Table Context check if the award name matches
+      boolean foundMatch = false;
+      for (Element element : tableContent) {
+        Elements boldElements = element.select("b");
+        if (boldElements.get(0).text().equals(awardName)) {
+          System.out.println(boldElements.get(1).select("i").text());
+          foundMatch = true;
+          break;
+        }
+      }
+
+      if (foundMatch == false) {
+        System.out.println("No winner found!");
+      }
 
     } else if (choice == 5) {
+      // Select Award
+      int award = 0;
+      while (true) {
+        System.out.println("Please type the number of the award you want to search for.");
+        printAwardNames();
+        try {
+          award = scanner.nextInt();
+          if (award < 1 || award > 37) {
+            System.out.println("Invalid choice!");
+          } else {
+            break;
+          }
+        } catch (Exception e) {
+          System.out.println("Invalid input!");
+          scanner.nextLine(); // clear the input buffer
+        }
+      }
+
+      List<String> awardNameList = getAwardName();
+      String awardName = awardNameList.get(award - 1);
+
+      Element root = connectToURL("https://en.wikipedia.org/wiki/" + yearToOscarNum(2022) + "_Academy_Awards");
+
+      // Find Winners and Nominees H2
+      List<String> headerKeys = Arrays.asList("winners", "and", "nominees");
+      Element winNomHeader = findElementContaining(headerKeys, root, "h2");
+
+      // Find the first table under the winners and nominees header
+      List<Element> h2Content = geth2Content(winNomHeader);
+      List<Element> tableContent = null;
+      for (Element element : h2Content) {
+        if (findElementWith("", element, "table") != null) {
+          tableContent = flattenTableContent(element);
+          break;
+        }
+      }
+      if (tableContent == null) {
+        System.out.println("No table found!");
+        return;
+      }
+
+      // For each element inside the Table Context check if the award name matches
+      boolean foundMatch = false;
+      for (Element element : tableContent) {
+        Elements boldElements = element.select("b");
+        if (boldElements.get(0).text().equals(awardName)) {
+          String moviePageLink = boldElements.get(1).select("i").select("a").attr("href");
+          Element moviePage = connectToURL("https://en.wikipedia.org" + moviePageLink);
+
+          // Get the first table element
+          Element infoTable = moviePage.select("table").first();
+          List<List<Element>> infoTableContent = getTableContent(infoTable);
+          for (List<Element> infoTableElement : infoTableContent) {
+            if (infoTableElement.get(0).text().contains("Budget")) {
+              System.out.println("Budget: " + removeBrackets(infoTableElement.get(1).text()));
+            }
+            if (infoTableElement.get(0).text().contains("Box office")) {
+              System.out.println("Box office: " + removeBrackets(infoTableElement.get(1).text()));
+            }
+          }
+          foundMatch = true;
+          break;
+        }
+      }
+
+      if (foundMatch == false) {
+        System.out.println("No winner found!");
+      }
 
     } else if (choice == 6) {
+      // Select Award
+      int award = 0;
+      while (true) {
+        System.out.println("Please type the number of the award you want to search for.");
+        System.out.println("1. Best Director");
+        System.out.println("2. Best Actor");
+        System.out.println("3. Best Actress");
+        System.out.println("4. Best Supporting Actor");
+        System.out.println("5. Best Supporting Actress");
+        try {
+          award = scanner.nextInt();
+          if (award < 1 || award > 5) {
+            System.out.println("Invalid choice!");
+          } else {
+            break;
+          }
+        } catch (Exception e) {
+          System.out.println("Invalid input!");
+          scanner.nextLine(); // clear the input buffer
+        }
+      }
+
+      Element root;
+      if (award == 1) {
+        root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Director");
+      } else if (award == 2) {
+        root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Actor");
+      } else if (award == 3) {
+        root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Actress");
+      } else if (award == 4) {
+        root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Supporting_Actor");
+      } else {
+        root = connectToURL("https://en.wikipedia.org/wiki/Academy_Award_for_Best_Supporting_Actress");
+      }
+
+      // Find Winners and Nominees H2
+      List<String> headerKeys = Arrays.asList("winners", "and", "nominees");
+      Element winNomHeader = findElementContaining(headerKeys, root, "h2");
+
+      // Get the tables under the winners and nominees header
+      List<Element> h2Content = geth2Content(winNomHeader);
+      Map<String, String> linkDict = new HashMap<>();
+      for (Element element : h2Content) {
+        if (findElementWith("", element, "table") != null) {
+          List<List<Element>> tableContent = getTableContent(element);
+          if (tableContent.get(0).get(0).text().contains("Year")) {
+            for (int i = 1; i < tableContent.size(); i++) {
+              Element interestingText;
+              if (tableContent.get(i).size() == 5 || (tableContent.get(i).size() == 4 && award == 1)) {
+                interestingText = tableContent.get(i).get(1);
+              } else {
+                interestingText = tableContent.get(i).get(0);
+              }
+              Elements interestingElements = interestingText.select("a");
+              for (Element linkElement : interestingElements) {
+                String link = linkElement.attr("href");
+                String text = linkElement.text();
+                linkDict.putIfAbsent(text, link);
+              }
+            }
+          }
+        }
+      }
+
+      Map<String, Integer> freqMap = new HashMap<>();
+      for (String key : linkDict.keySet()) {
+        try {
+          String link = URLDecoder.decode(linkDict.get(key), "UTF-8");
+          Element personPage = connectToURL("https://en.wikipedia.org" + link);
+          // Get the first table element
+          Element infoTable = personPage.select("table").first();
+          List<List<Element>> infoTableContent = getTableContent(infoTable);
+          Set<String> eduSet = new HashSet<>();
+          for (List<Element> infoTableElement : infoTableContent) {
+            if (infoTableElement.get(0).text().contains("Education")) {
+              Elements schools = infoTableElement.get(1).select("a");
+              for (Element school : schools) {
+                if (school.text().length() > 3) {
+                  eduSet.add(removeParentheses(school.text()));
+                }
+
+              }
+            }
+            if (infoTableElement.get(0).text().contains("Alma mater")) {
+              Elements schools = infoTableElement.get(1).select("a");
+              for (Element school : schools) {
+                if (school.text().length() > 3) {
+                  eduSet.add(removeParentheses(school.text()));
+                }
+              }
+            }
+          }
+          List<String> eduList = new ArrayList<>(eduSet);
+          for (String school : eduList) {
+            if (freqMap.containsKey(school)) {
+              int count = freqMap.get(school);
+              freqMap.put(school, count + 1);
+            } else {
+              freqMap.put(school, 1);
+            }
+          }
+        } catch (Exception e) {
+          System.out.println("Error: " + e);
+        }
+      }
+
+      // Sort the dictionary by values
+      List<Map.Entry<String, Integer>> entries = new ArrayList<>(freqMap.entrySet());
+      Collections.sort(entries, new Comparator<Map.Entry<String, Integer>>() {
+        @Override
+        public int compare(Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) {
+          return e2.getValue().compareTo(e1.getValue());
+        }
+      });
+      // Create a list of keys in descending order
+      List<String> keys = new ArrayList<>();
+      for (Map.Entry<String, Integer> entry : entries) {
+        keys.add(entry.getKey());
+      }
+      // Print the list of keys
+      // for (String key : keys) {
+      // System.out.println(key + ": " + freqMap.get(key));
+      // }
+      System.out
+          .println("The most common school is " + keys.get(0) + " with " + freqMap.get(keys.get(0)) + " nominations.");
 
     } else if (choice == 7) {
 
