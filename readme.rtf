@@ -1,0 +1,146 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2638
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fswiss\fcharset0 Helvetica-Oblique;
+}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww13440\viewh7800\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 General Usage Instructions:
+\f1\b0 \
+You can just compile and run the App.java file for everything. The directions are pretty self explanatory, as all instructions are printed out. For any question with italicized words, the program will prompt you for those inputs after you selected that question.\
+\
+You will never have to type any award names out. Every question is multiple choice (or numbers), and each question will tell you clearly how to use it. Inputs are error checked for correctness (e.g., via valid ranges), so as long as you input something sane, it should not give you any issues (and would re-prompt on invalid input).\
+\
+Each run allows you to ask one question. It will end once that question is answered. Some runs take longer than others (especially the latter questions), but none should take longer than a few tens of seconds.\
+\
+
+\f0\b Problems:
+\f1\b0  N/A. A bit tedious accounting for formatting edge cases, but I got it done :)\
+\
+
+\f0\b Algorithms & Assumptions
+\f1\b0 \
+
+\f0\b Question 1:
+\f1\b0 \
+1) Go to Academy Awards page.\
+2) Find the Discontinued Categories header, find the list below it, read its contents, and print them out (formatted)\
+
+\f2\i \
+Assumptions:
+\f1\i0  N/A\
+\
+
+\f0\b Question 2:
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 1) Go to Academy Awards page.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 2) Select the decade of interest (between 192 - 202)\
+3) Find the Current categories header, find the table below it, print out category name if it was introduced in the decade (some basic string parsing was needed to do this)\
+4) Find the Discontinued Categories header, find the list below it, read its contents, and print any categories that were introduced in the decade, and weren\'92t discontinued in the decade.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 \
+Assumptions:
+\f1\i0 \
+1) For current categories, if the award was introduced across 2 years (e.g., 1929-1930), then it counts as being introduced in both decades (the 1920s will show it, the 1930s will show it)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b Question 3:
+\f1\b0 \
+1) Select the year and number of nominations threshold\
+2) Go to nth Academy Awards page\
+3) Go to the Winners and Nominees table and flatten the data into a list of Awards [Award 1 info, Award 2 info, etc]. For each award find nominated movies by looking for italicized elements. Tally them up in a frequency hash map\
+4) Print out movies w/ more than the threshold # of nominations\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0  N/A\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b \cf0 Question 4:
+\f1\b0 \
+1) Select the year and award name\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 2) Go to nth Academy Awards page\
+3) Go to the Winners and Nominees table and flatten the data into a list of Awards [Award 1 info, Award 2 info, etc]. For each award find the award name and winning movie by looking for bold elements. If the award name matches the selected award, print the film name.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0  N/A\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b \cf0 Question 5:
+\f1\b0 \
+1) Select the award name\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 2) Go to nth Academy Awards page\
+3) Go to the Winners and Nominees table and flatten the data into a list of Awards [Award 1 info, Award 2 info, etc]. For each award find the award name and winning movie by looking for bold elements. If the award name matches the selected award, find the film name\'92s link.\
+4) Go to discovered link.\
+5) Find the info table for the film, and look for budget and box office info. Print if either exist.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0  N/A\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b Question 6:
+\f1\b0 \
+1) Select the award name\
+2) Go to the award\'92s dedicated page\
+3) Go to the Winners and Nominees table, and create a hash map \{person name: link\} using the table info\
+4) For each name in the hash map, visit the associated link. In the info table for that person, find their Education and/or Alma mater info. For each person, add their list of institutions into a set to remove duplicate elements (i.e., so that if the person went to Yale for both BA and MA, Yale would still only be counted once). Tally the result set up in a frequency hash map.\
+5) Sort the frequency hash map is descending order. Print the top key.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0 \
+1) We only included human-centric awards as valid inputs, rather than film-centric awards.\
+2) If a person attended the same institution for multiple degrees, we still only count that as one in the frequency hash map.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b \cf0 Question 7:
+\f1\b0 \
+1) Select the award name\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 3) If the award is the International Award, there is a page that specifically tallies up the top countries. Go to that page, read that table, and print out relevant information.\
+4) If the award isn\'92t the International Award, go to the award\'92s dedicated page. Go to the Winners and Nominees table, and create a hash map \{film name: link\} using the table info\
+5) For each name in the hash map, visit the associated link. In the info table for that person, find the Country info. Tally that up in a frequency hash map.\
+5) Sort the frequency hash map is descending order. Print that out.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0 \
+1) We only included film-centric awards as valid inputs, rather than human-centric awards.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b \cf0 Question 8:
+\f1\b0 \
+1) Go to the Best Picture page\
+2) Go to the Winners and Nominees table, and create a hash map \{film name: link\} using the table info\
+3) For each name in the hash map, visit the associated link. In the info table for that person, find the budget and box office info. ROI = (box office - budget)/(budget). Lots of string parsing to get the numbers into consistent numerical quantity. Put that info in a \{film name: ROI\} hash map\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 4) Sort the frequency hash map is descending order. Print that out.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f2\i \cf0 Assumptions:
+\f1\i0  N/A}
